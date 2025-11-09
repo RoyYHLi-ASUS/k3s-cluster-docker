@@ -1,0 +1,12 @@
+apiVersion: configd/v1
+kind: TaskList
+metadata:
+  name: k3s-installation
+
+spec:
+  tasks:
+    - image: royli0822/k3s-ansible:latest
+      volume: ./ansible-vars-config:/mnt/ansible-vars-config
+      cmd: >-
+        ansible-playbook k3s_playbook.yml
+        -e "@/mnt/ansible-vars-config/vars.yml"

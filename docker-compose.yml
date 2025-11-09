@@ -1,0 +1,34 @@
+version: '3.7'
+services:
+  k3s-installer:
+    # 假設您的 Dockerfile 和 entrypoint.sh 已經被構建為 k3s-ansible 鏡像
+    image: k3s-ansible 
+    
+    # === 關鍵的特權和命名空間共享設定 ===
+    # 賦予容器最高權限，這是操作 Host 系統所必需的。
+    privileged: true
+    
+    # 共享 Host 的網路堆疊 (Network Namespace)
+    network_mode: host
+    
+    # 共享 Host 的 PID 命名空間，允許容器存取和操作 Host 上的所有行程。
+    pid: host
+    
+    # === 卷 (Volumes) 掛載設定 ===
+    volumes:
+      # 將 Host 的根目錄 / 掛載到容器內的 /host，這是 nsenter 進入 Host 環境所必需的。
+      - /:/host
+      
+      # 掛載 systemd 運行目錄，用於讓容器內的 nsenter/Ansible 存取 Host 的 systemd 服務管理。
+      - /run/systemd:/run/systemd:ro
+      
+      # 掛載 dbus 運行目錄，如果 Ansible 或 k3s 安裝過程需要 D-Bus 系統通訊。
+      - /var/run/dbus:/var/run/dbus:ro
+      - ./ansible-vars-config:/ansible-vars-config:ro
+      
+    # === 環境變數設定 ===
+#    environment:
+      # define in vars.yml
+      
+    # 由於這個容器的目的是運行一次安裝程序就退出，而不是持續運行服務：
+    restart: "no"
