@@ -6,7 +6,7 @@ echo ""
 
 # 複製 playbook 到 host
 cp /ansible/k3s_playbook.yml /host/tmp/k3s_playbook.yml
-cp /ansible-vars-config/vars.yml /host/tmp/vars.yml
+cp /ansible/vars.yml /host/tmp/vars.yml
 
 echo "正在 host 命名空間中執行 Ansible..."
 

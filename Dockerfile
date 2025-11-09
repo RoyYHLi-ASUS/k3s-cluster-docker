@@ -12,8 +12,9 @@ RUN apk add --no-cache \
 # 創建工作目錄
 WORKDIR /ansible
 
-# 複製 playbook
+# 複製 playbook and vars
 COPY playbooks/k3s_playbook.yml /ansible/k3s_playbook.yml
+COPY ansible-vars-config/vars.yml /ansible/vars.yml
 
 # 設置 Ansible 配置
 RUN mkdir -p /etc/ansible && \
