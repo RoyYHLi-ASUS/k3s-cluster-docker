@@ -56,16 +56,28 @@
         - host_type is defined and host_type == "rc"
       register: k3s_server_install
 
+    - name: detect K3s Controller API (6443)
+      ansible.builtin.uri:
+        url: "https://{{ controller_addr }}:6443/ping"
+        method: GET
+        validate_certs: no
+        return_content: no
+      register: k3s_connect_test
+      retries: 1
+      delay: 5
+      failed_when: k3s_connect_test.status is not defined or k3s_connect_test.status != 200
+
     - name: Install K3s Agent (for drone hosts)
       shell: |
         K3S_URL=https://{{ controller_addr }}:6443 K3S_TOKEN="{{ k3s_token }}" {{ k3s_install_script }}
-      when: 
+      when:
+        - k3s_connect_test is not failed 
         - host_type is defined and host_type == "drone"
       register: k3s_agent_install
-      retries: 5
-      delay: 15
+      retries: 1
+      delay: 5
       until: k3s_agent_install.rc == 0
-      
+
     - name: Wait for K3s to be ready
       pause:
         seconds: 15

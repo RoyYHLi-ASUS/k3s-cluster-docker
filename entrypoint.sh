@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+#set -e
 
 echo "=== K3s Ansible 安裝程序 ==="
 echo ""
@@ -12,6 +12,7 @@ echo "正在 host 命名空間中執行 Ansible..."
 
 # 使用 nsenter 進入 host 的命名空間並執行 Ansible
 nsenter --target 1 --mount --uts --ipc --net --pid -- bash -c "
+    set -e
     # 確保在 host 上安裝 ansible（如果需要）
     if ! command -v ansible-playbook &> /dev/null; then
         echo '正在 host 上安裝 Ansible...'
@@ -39,5 +40,15 @@ nsenter --target 1 --mount --uts --ipc --net --pid -- bash -c "
         -v
 "
 
-echo ""
-echo "=== 安裝完成 ==="
+EXIT_CODE=$?
+#echo "Exit code: $EXIT_CODE"
+
+if [ $EXIT_CODE -eq 0 ]; then
+    echo "✅ Ansible Playbook execute success!"
+    echo ""
+    echo "=== you are all set ==="
+    exit 0
+else
+    echo "❌ Ansible Playbook execute fail!error code: $EXIT_CODE"
+    exit $EXIT_CODE
+fi
